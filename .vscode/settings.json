@@ -1,0 +1,7 @@
+{
+	"deno.enable": true,
+	"deno.lint": true,
+	"deno.path": "/usr/local/bin/deno",
+	"deno.config": "./deno.json",
+	"editor.defaultFormatter": "vscode.typescript-language-features"
+}

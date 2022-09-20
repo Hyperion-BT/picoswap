@@ -1,0 +1,589 @@
+:root {
+    --green: #afdb57;
+    --orange: #ffa117;
+    --text-color: #181818;
+    --link-color: #181818;
+}
+
+
+/* 
+ * common tags and classes 
+ */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+a {
+    position: relative;
+    /* text-decoration: none; */
+    color: var(--link-color);
+}
+
+a:visited {
+    color: var(--link-color);
+}
+
+a:hover {
+    color: var(--text-color);
+}
+
+a.link {
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: normal;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+button:disabled {
+    cursor: unset;
+    opacity: 0.6;
+}
+
+input, select {
+    height: 40px;
+    border: none;
+    border-style: inset;
+    background-color: white;
+    border-radius: 5px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+input[invalid] {
+    border: 3px solid red;
+}
+
+input:disabled, select:disabled {
+    opacity: 0.6;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-wrapper input {
+    width: 100%;
+}
+
+.input-wrapper .input-error {
+    position: absolute;
+    border-radius: 3px;
+    background-color: red;
+    color: white;
+    font-size: 0.8rem;
+    right: 5px;
+    bottom: -5px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.form-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.form-title button.close {
+    width: 30px;
+    height: 30px;
+    background-color: inherit;
+}
+
+.form-row, .form-final-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.form-row > * {
+    flex-grow: 1;
+    margin-bottom: 10px;
+}
+
+.form-row > label {
+    margin-right: 20px;
+    flex-grow: unset;
+}
+
+.form-final-row > button {
+    height: 40px;
+    padding-left: 10px;
+    padding-right: 10px;
+    flex-grow: 1;
+    font-size: 1rem;
+    margin-right: 10px;
+}
+
+.form-final-row > button:last-child {
+    margin-right: 0;
+}
+
+.form-final-row {
+    margin-top: 10px;
+}
+
+/* 
+ * page layout 
+ */
+html, body {
+    min-height: 100vh;
+    font-family: sans;
+    width: max(100%, max-content);
+}
+
+body {
+    background: linear-gradient(45deg, #fcb37e, #5421b3);
+    display: grid;
+    grid-template-rows: 50px 1fr 30px;
+}
+
+header {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+header img.logo {
+    height: 40px;
+}
+
+header div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+header button {
+    height: 40px;
+}
+
+header button.new-sale {
+    margin-right: 10px;
+    padding: 5px;
+    background-color: var(--orange);
+}
+
+header button.show-contract {
+    margin-right: 10px;
+    padding: 5px;
+    background-color: var(--green);
+}
+
+header button.eternl {
+    width: 180px;
+    background-color: black;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-right: 5px;
+    background-image: url("./img/eternl-logo.jpg");
+    background-repeat: no-repeat;
+    background-size: 40px;
+    padding-left: 40px;
+}
+
+header button.eternl * {
+    height: 36px;
+}
+
+/*
+ * loading modal
+ */
+#modal {
+    min-width: max-content;
+    min-height: min-content;
+    width: 50vh;
+    height: 50vh;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#modal-background {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(255, 255, 255, 0.7);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9;
+    backdrop-filter: blur(6px);
+}
+   
+#modal img.cardano-logo {
+    max-width: 150px;
+    max-height: 150px;
+    margin-bottom: 30px;
+}
+
+#modal img.cardano-logo.animate {
+    animation-name: pulsate;
+    animation-duration: 1.0s;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+    animation-play-state: running;
+}
+
+@keyframes pulsate {
+    0% {
+        transform: scale(0.75);
+    }
+
+    100% {
+        transform: scale(1.0);
+    }
+}
+
+#modal p.error {
+    color: red;
+}
+
+/*
+ * main content div
+ */
+#main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+/*
+ * landing page view
+ */
+#welcome-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+#welcome {
+    padding: 20px;
+    letter-spacing: 0.05rem;
+    line-height: 1.5rem;
+    max-width: min(90vw, 560px);
+    border-radius: 5px;
+    background-color: var(--green);
+    color: var(--text-color);
+    box-shadow: 6px 3px 3px black;
+}
+
+/*
+ * contract info view
+ */
+#contract-info-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+#contract-info {
+    display: flex;
+    flex-direction: column;
+    max-height: max-content;
+    border-radius: 5px;
+    padding: 20px;
+    width: min(95vw, 700px);
+    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--green);
+    color: var(--text-color);
+    box-shadow: 6px 3px 3px black;
+}
+
+#contract-info #script {
+    position: relative;
+    margin-bottom: 10px;
+    overflow-x: scroll;
+    white-space: nowrap;
+    max-height: max-content;
+    background-color: white;
+    padding: 10px;
+    border-style: inset;
+    border-radius: 5px;
+}
+
+#contract-info .form-row {
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#contract-info #address {
+    border-radius: 5px;
+    background-color: white;
+    padding: 10px;
+    border-style: inset;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#contract-info .form-final-row button {
+    background-color: var(--orange);
+}
+
+/* syntax comment category */
+#script span[c="1"] {
+    color: grey;
+}
+
+/* syntax literal category */
+#script span[c="2"] {
+    color: darkred;
+}
+
+/* syntax operator symbol category */
+#script span[c="3"] {
+    color: green;
+}
+
+/* syntax type category */
+#script span[c="4"] {
+    color: darkgoldenrod;
+}
+
+/* syntax keyword category */
+#script span[c="5"] {
+    color: green;
+}
+
+/*
+ * sale form view
+ */
+#sale-form-wrapper {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#sale-form {
+    padding: 20px;
+    background-color: var(--green);
+    border-radius: 5px;
+}
+
+#sale-form .form-row > label {
+    width: 50px;
+    margin-right: 10px;
+}
+
+#sale-form .asset-input {
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+#sale-form .asset-input label {
+    margin-top: 10px;
+}
+
+#sale-form .asset-input label:first-child {
+    margin-top: 0;
+}
+
+#sale-form .price-input {
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#sale-form .price-input .input-wrapper {
+    flex-grow: 1;
+}
+
+#sale-form .price-input > p:last-child {
+    font-size: 1.5rem;
+    padding-left: 5px;
+}
+
+#sale-form .address-input {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+#sale-form .address-input > div:first-child {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#sale-form .address-input > div:first-child input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+}
+
+#sale-form .submit {
+    background-color: var(--orange);
+}
+
+#overview-wrapper {
+    margin-top: 40px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#overview {
+    max-width: calc(100vw - 10px);
+    background-color: var(--green);
+    border-radius: 5px;
+    padding: 20px;
+}
+
+#overview #table-wrapper {
+    background-color: white;
+    border: inset;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+#overview table {
+    border-collapse: collapse;
+    width: max-content;
+}   
+
+#overview table tr {
+    height: 2rem;
+}
+
+#overview table tr td:nth-child(2) p {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#overview table th, #overview table td {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#overview table tr {
+    border-bottom: 1px solid #ddd;
+}
+
+#overview table th, #overview table td {
+    border-right: 1px solid #ddd;
+}
+
+#overview table th:last-child, #overview table td:last-child {
+    border-right: none;
+}
+
+#overview table button {
+    background-color: var(--orange);
+    height: 2rem;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+#overview tbody pre {
+    max-width: 160px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+#global-error {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: max-content;
+    height: 40px;
+    overflow: hidden;
+    background-color: red;
+    color: white;
+    border-radius: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bolder;
+    animation-name: grow-height;
+    animation-duration: 0.1s;
+    animation-timing-function: ease-out;
+    animation-iteration-count: unset;
+    animation-play-state: running;
+}
+
+#global-error button.close {
+    margin-left: 10px;
+    width: 20px;
+    height: 20px;
+}
+
+@keyframes grow-height {
+    0% {
+        height: 0px;
+    }
+
+    100% {
+        height: 40px;
+    }
+}
+
+footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    padding: 5px;
+}
+
+footer div.contract-address {
+    background-color: var(--green);
+    padding: 5px;
+    border-radius: 5px;
+}
+
+footer div.social a {
+    margin-left: 5px;
+}
+
+footer div.social img {
+    height: 20px;
+    width: 20px;
+}

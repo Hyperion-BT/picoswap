@@ -1,0 +1,5 @@
+{
+    "imports": {
+        "preact": "https://unpkg.com/preact@10.11.0/src/index.js"
+    }
+}

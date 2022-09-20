@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "strict": true,
+        "alwaysStrict": true,
+        "checkJs": true,
+        "lib": ["dom", "esnext"],
+        "useDefineForClassFields": true
+    },
+    "importMap": "./importmap.json",
+    "lint": {"rules": {"exclude": ["no-this-alias"]}}
+}
