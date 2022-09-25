@@ -4,12 +4,12 @@ PicoSwap is a Cardano atomic swap DApp. PicoSwap uses the [Helios](https://githu
 
 This repository serves as a template for building Cardano DApps using only client-side JavaScript.
 
-PicoSwap doesn't use any build-steps. The development files, including those of dependencies, are served directly to the client. This approach was chosen in order to maximize auditability (it should be as easy as possible to verify the correct implementation of PicoSwap), and minimize the number of pieces of software that must be blindly trusted (ideally only your browser, wallet, and the Cardano-network itself). In the future we envision that PicoSwap is hosted using IPFS and that it queries the blockchain using only decentralized APIs (which should make it uncensorable).
+PicoSwap doesn't use any build-steps. The development files, including those of dependencies, are served directly to the client. This approach was chosen in order to maximize auditability (it should be as easy as possible to verify the correct implementation of PicoSwap), and minimize the number of pieces of software that must be blindly trusted (ideally only your browser, wallet, and the Cardano-network itself). In the future we envision that PicoSwap will be hosted using IPFS and that it will query the blockchain using only decentralized APIs.
 
 Currently PicoSwap only works with the Eternl wallet (Chrome) connected to the Cardano preview testnet. Please raise a github issue if you would like to see another wallet supported.
 
 ## Deno as JavaScript language server for development
-We recommend using Deno as a language server as it smoothly supports reading type annotations from external modules.
+We recommend using Deno as a language server as it supports reading type annotations from external modules.
 
 ### Installing Deno
 Install Deno using the following command (assuming you use Linux):
