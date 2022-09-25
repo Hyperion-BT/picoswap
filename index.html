@@ -14,13 +14,16 @@
 		</script>
 		<script type="module">
 			import("./index.js").then(module => module.init()).catch((e) => {
-				throw e;
-				document.getElementById("cardano-logo").classList = ["cardano-logo"];
+				if (e.message.match("module") !== null) {
+					document.getElementById("cardano-logo").classList = ["cardano-logo"];
 
-				let p = document.getElementById("message");
-				p.innerHTML = 'Error: your browser doesn\'t support <a href="https://caniuse.com/import-maps">importmaps</a> (try Chrome)';
-				p.classList = ["error"];
-			});
+					let p = document.getElementById("message");
+					p.innerHTML = 'Error: your browser doesn\'t support <a href="https://caniuse.com/import-maps">importmaps</a> (try Chrome)';
+					p.classList = ["error"];
+				} else {
+					throw e;
+				}
+			}); 
 		</script>
 	</head>
 	<body>
