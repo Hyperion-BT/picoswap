@@ -152,7 +152,7 @@ export function Overview(props) {
                                     return null;
                                 }
                             })}
-                            <tr class="empty"><td colspan="5">${(cs.length == 0 && props.pending.length == 0) ? html`<i>No active sales</i>` : null}</td></tr>
+                            <tr class="empty"><td colspan="5">${(cs.length == 0 && props.pending.length == 0) ? html`<i>No active ${props.hidePublic ? "private " : ""}sales</i>` : null}</td></tr>
                         </tbody>
                     </table>
                 </div>
