@@ -1,21 +1,22 @@
 import { html, SPACE } from "./render.js";
 
 /** @typedef {import("./helios.js").UplcData} UplcData */
+/** @typedef {import("./helios.js").UplcProgram} UplcProgram */
 import { Address, ConstrData, InlineDatum, Program, PubKeyHash, Value, hexToBytes, bytesToHex, highlight, UTxO } from "./helios.js";
 
-const optimize = true;
+const optimize = false;
 
 export const contractScript = `
 spending picoswap
 
-// Note: each input UTxO must contain some lovelace, so the datum price should be higher than the nominal price
+// Note: each input UTxO must contain some lovelace, so the datum price will be a bit higher than the nominal price
 // Note: public sales are possible when a buyer isn't specified
 
 struct Datum {
     seller: PubKeyHash
     price:  Value              
     buyer:  Option[PubKeyHash]
-    nonce:  Int
+    nonce:  Int // double satisfaction protection
 
     func seller_signed(self, tx: Tx) -> Bool {
         tx.is_signed_by(self.seller)
@@ -30,17 +31,18 @@ struct Datum {
 
     func seller_received_money(self, tx: Tx) -> Bool {
         // protect against double satisfaction exploit by datum tagging the output using a nonce
-        tx.value_sent_to_datum(self.seller, self.nonce, false) >= self.price 
+        tx.value_sent_to_datum(self.seller, self.nonce, false) >= self.price
     }
 }
 
 func main(datum: Datum, ctx: ScriptContext) -> Bool {
     tx: Tx = ctx.tx;
 
-    // sellers can do whatever they want
+    // sellers can do whatever they want with the locked UTxOs
     datum.seller_signed(tx) || (
-        // buyers can do whatever they want as long as the sellers receive their end of the deal
-        datum.buyer_signed(tx) && datum.seller_received_money(tx)
+        // buyers can do whatever they want with the locked UTxOs, as long as the sellers receive their end of the deal
+        datum.buyer_signed(tx) && 
+		datum.seller_received_money(tx)
     )
 }`;
 
@@ -148,14 +150,29 @@ export class Contract {
     #utxos;
 
     /**
+     * 0: starting, 1: active, 2: ending
+     * @type {number}
+     */
+    #state;
+
+    /**
      * @param {ConstrData} datum 
      * @param {UTxO[]} utxos
+     * @param {number} state 
      */
-    constructor(datum, utxos) {
+    constructor(datum, utxos, state = 1) {
         this.#datum = datum;
         this.#utxos = utxos;
+        this.#state = state;
     }
 
+    /**
+     * @type {ConstrData}
+     */
+    get datum() {
+        return this.#datum;
+    }
+    
     /**
      * @type {UTxO[]}
      */
@@ -168,6 +185,14 @@ export class Contract {
      */
     get seller() {
         return new PubKeyHash(this.#datum.fields[0].bytes);
+    }
+
+    /**
+     * Doesn't include the staking part
+     * @type {Address}
+     */
+    get sellerAddress() {
+        return Address.fromPubKeyHash(true, this.seller);
     }
 
     /**
@@ -202,6 +227,21 @@ export class Contract {
      */
     get nonce() {
         return this.#datum.fields[3].int;
+    }
+
+    /**
+     * @type {number}
+     */
+    get state() {
+        return this.#state;
+    }
+
+    /**
+     * @param {Contract} other 
+     * @returns {boolean}
+     */
+    eq(other) {
+        return this.#datum.toSchemaJson() == other.#datum.toSchemaJson();
     }
 
     /**

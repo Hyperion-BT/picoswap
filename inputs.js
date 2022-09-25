@@ -1,7 +1,8 @@
 /** @typedef {import("./render.js").UI} UI */
 import { html } from "./render.js";
 import { useState } from "./hooks.js";
-import { Address, Assets, Value, bytesToHex, hexToBytes, MintingPolicyHash } from "./helios.js";
+/** @typedef {import("./helios.js").MintingPolicyHash} MintingPolicyHash */
+import { Address, Assets, Value, bytesToHex, hexToBytes } from "./helios.js";
 
 export const ADA = "₳";
 
@@ -12,7 +13,7 @@ export const ADA = "₳";
 function renderInput(props) {
     return html`
         <div class="input-wrapper">
-            <input id=${props.id} value=${props.value} invalid=${props.error != "" ? "" : null} onInput=${(e) => props.onInput(e.target.value)} disabled=${props.disabled}/>
+            <input id=${props.id} value=${props.value} invalid=${props.error != "" ? "" : null} onInput=${(/** @type {Event} */ e) => props.onInput(e.target?.value)} disabled=${props.disabled}/>
             ${props.error != "" ?
             html`<p class="input-error">${props.error}</p>` :
             null
@@ -206,9 +207,11 @@ export class AdaInput {
         return html`
             <div id=${this.#id} class="asset-input">
                 <label for=${mphId}>Policy ID</label>
-                ${renderSelect(mphId, bytesToHex(this.#mph.bytes), this.#balance.assets.mintingPolicies.map(k => bytesToHex(k.bytes)), (e) => this.#setMph(MintingPolicyHash.fromHex(e.target.value)))}
+                ${renderSelect(mphId, this.#mph.toBech32(), this.#balance.assets.mintingPolicies.map(mph => mph.toBech32()), (/** @type {Event} */ e) => this.#setMph(
+                    this.#balance.assets.mintingPolicies.find(mph => mph.toBech32() == e.target?.value)
+                ))}
                 <label for=${tnId}>Token Name</label>
-                ${renderSelect(tnId, bytesToHex(this.#tokenName), this.#tokenNames.map(t => bytesToHex(t)), (e) => this.#setTokenName(hexToBytes(e.target.value)))}
+                ${renderSelect(tnId, bytesToHex(this.#tokenName), this.#tokenNames.map(t => bytesToHex(t)), (/** @type {Event} */ e) => this.#setTokenName(hexToBytes(e.target?.value)))}
                 <label for=${qtyId}>Quantity</label>
                 ${renderInput({id: qtyId, value: this.#rawValue, onInput: this.#setRawValue, error: error, disabled: false})}
             </div>
@@ -254,7 +257,7 @@ export class AddressInput {
             }
 
             return "";
-        } catch (e) {
+        } catch (_e) {
             return "invalid address";
         }
     }
@@ -287,7 +290,7 @@ export class AddressInput {
             <div class="address-input">
                 <div>
                     <label for="${isPrivateId}">Private</label>
-                    <input id=${isPrivateId} type="checkbox" ${this.#isPrivate ? "checked" : ""} onClick=${(e) => {console.log("detected cb clikc"); this.#setIsPrivate(!this.#isPrivate)}}/>
+                    <input id=${isPrivateId} type="checkbox" ${this.#isPrivate ? "checked" : ""} onClick=${(/** @type {Event} */ _e) => {this.#setIsPrivate(!this.#isPrivate)}}/>
                 </div>
                 <label for="${addressInputId}">Address</label>
                 ${renderInput({id: this.#id, value: this.#isPrivate ? this.#rawValue : "", onInput: this.#setRawValue, error: error, disabled: !this.#isPrivate})}

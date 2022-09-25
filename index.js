@@ -1,9 +1,9 @@
 /** @typedef {import("./render.js").UI} UI */
-import { html, render, SPACE } from "./render.js";
+import { html, render } from "./render.js";
 import { useState, useEffect, useMemo } from "./hooks.js";
 
 /** @typedef {import('./helios.js').Address} Address */
-import { Datum, IntData, Value, Tx, bytesToHex, TxOutput } from "./helios.js";
+import { ConstrData, Datum, IntData, Value, Tx, UTxO, TxOutput, Hash } from "./helios.js";
 import { calcScriptAddress, Contract, generateDatum, getCompiledProgram, highlightedContract } from "./contract.js";
 /** @typedef {import('./wallet.js').WalletState} WalletState */
 import { Wallet } from "./wallet.js";
@@ -13,10 +13,7 @@ import { Proxy } from "./Proxy.js";
 import { Modal } from "./Modal.js";
 import { Link } from "./Link.js";
 import { SaleForm } from "./SaleForm.js";
-import { ADA } from "./inputs.js";
-
-
-
+import { Overview } from "./Overview.js";
 
 
 const WALLET_WAIT_MSG = "Waiting for wallet permission...";
@@ -34,6 +31,9 @@ function App(props) {
     const [walletState, setWalletState] = useState(null);
     const [network, setNetwork] = useState(null);
     const [contracts, setContracts] = useState(null);
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [pending, setPending] = useState([]); // pending contracts
+    const [hidePublic, setHidePublic] = useState(false);
 
     /** @type {Value} */
     const balance = useMemo(
@@ -48,26 +48,45 @@ function App(props) {
     );
 
     /**
-     * Sync the walletState and the networkState every 20 seconds
+     * Sync wallet every 10s
      */
     useEffect(() => {
         const timer = setInterval(() => {
-            console.log("syncing");
-            if (wallet !== null) {
-                // fire and forget
-                syncWallet();
-            }
-
-            if (network !== null) {
-                // fire and forget
-                syncNetwork(network);
-            }
-        }, 20000);
-
+            syncWallet();
+        }, 10000);
+        
         return () => {
             clearInterval(timer);
         }
-    }, [wallet, network]);
+    }, [wallet]);
+
+    /**
+     * Auto sync network only if there are pending transactions
+     */
+    useEffect(() => {
+        if (pending.length > 0) {
+            setTimeout(() => {
+                syncNetwork();
+            }, 5000);
+        }
+    }, [pending]);
+
+    /**
+     * @param {number} ms 
+     * @returns {Promise<void>}
+     */
+    function wait(ms = 0) {
+        return new Promise((resolve, _reject) => {
+            setTimeout(resolve, ms);
+        });
+    }
+
+    /**
+     * @param {Contract} contract 
+     */
+    function pushPendingContract(contract) {
+        setPending(pending.concat([contract]));
+    }
 
     function isConnected() {
         return walletState !== null;
@@ -75,6 +94,8 @@ function App(props) {
 
     async function connect() {
         setWaitMessage(WALLET_WAIT_MSG);
+
+        await wait();
 
         try {
             const initHandle = window.cardano.eternl;
@@ -118,7 +139,7 @@ function App(props) {
 
                 setWaitMessage("Syncing network...");
 
-                await syncNetwork(network);
+                await syncNetworkInternal(network);
 
                 setWaitMessage("");
                 setErrorMessage("");
@@ -132,7 +153,24 @@ function App(props) {
         }
     }
 
+    async function syncNetwork() {
+        if (!isSyncing) {
+            setIsSyncing(true);
+
+            if (network !== null) {
+                await syncNetworkInternal(network);
+            }
+
+            setIsSyncing(false);
+        }
+    }
+
     async function syncWallet() {
+        if (wallet === null) {
+            // assume already disconnected
+            return;
+        }
+
         // first check that wallet is still connected
         try {
             void await wallet.getNetworkId();
@@ -152,13 +190,35 @@ function App(props) {
         setWalletState(newWalletState);
     }
 
-    async function syncNetwork(network) {
+    /**
+     * Updates the list of UTxOs locked at the contract address
+     * Also updates the list of pending contract transactions
+     * @param {PreviewNetwork} network 
+     */
+    async function syncNetworkInternal(network) {
         // TODO: use IDB as a caching layer
 
         const utxos = await network.getUtxos(calcScriptAddress());
 
         const contracts = Contract.groupUtxos(utxos);
 
+        /** @type {Contract[]} */
+        const newPending = [];
+
+        for (const pc of pending) {
+            if (pc.state == 0) {
+                // check if in the new list
+                if (contracts.findIndex(c => c.eq(pc)) == -1) {
+                    newPending.push(pc);
+                }
+            } else if (pc.state == 2) {
+                if (contracts.findIndex(c => c.eq(pc)) != -1) {
+                    newPending.push(pc);
+                } 
+            }
+        }
+
+        setPending(newPending);
         setContracts(contracts);
     }
 
@@ -189,6 +249,8 @@ function App(props) {
     async function submitContract(asset, price, buyer) {
         setWaitMessage("Building transaction...");
 
+        await wait(100);
+
         try {
             // build the transaction
             const tx = new Tx();
@@ -216,6 +278,7 @@ function App(props) {
             });
 
             tx.addOutput(output);
+
             tx.setChangeAddress(changeAddress);
             
             await tx.finalize(network.params, spareUtxos);
@@ -225,6 +288,7 @@ function App(props) {
             const pkws = await wallet.signTx(tx);
 
             setWaitMessage("Verifying signature...");
+
             for (const pkw of pkws) {
                 tx.addSignature(pkw);
             }
@@ -232,13 +296,25 @@ function App(props) {
             setWaitMessage("Submitting transaction...");
 
             //console.log(JSON.stringify(tx.dump(), undefined, 4));
-            console.log(`submitted tx ${await wallet.submitTx(tx)}`);
+
+            const txId = Hash.fromHex(await wallet.submitTx(tx));
+
+            console.log(`submitted tx ${txId.hex}`);
+
+            // add pending to pending list
+            const datum = output.getDatumData();
+            if (datum instanceof ConstrData) {
+                pushPendingContract(new Contract(datum, [new UTxO(txId, 0n, output)], 0)); // even better would be that the wallet supports tx chaining, so wouldn't have to manage that here
+            } else {
+                throw new Error("unexpected");
+            }
 
             setWaitMessage("");
             setErrorMessage("");
             setShowSaleForm(false);
         } catch (e) {
             setWaitMessage("");
+            console.error(e);
             setErrorMessage(`Error: ${e.message}`);
         }
     }
@@ -249,6 +325,8 @@ function App(props) {
      */
     async function cancelContract(contract) {
         setWaitMessage("Building transaction...");
+
+        await wait(100);
 
         try {
             const tx = new Tx();
@@ -286,6 +364,10 @@ function App(props) {
 
             setWaitMessage("Waiting for wallet signature...");
             
+			//console.log(tx.dump());
+
+			//console.log(getCompiledProgram().src.pretty());
+
             const pkws = await wallet.signTx(tx);
 
             setWaitMessage("Verifying signature...");
@@ -297,15 +379,95 @@ function App(props) {
 
             console.log(`submitted tx ${await network.submitTx(tx)}`);
 
+            // add to pending list
+            pushPendingContract(new Contract(contract.datum, contract.utxos, 2));
+
             setWaitMessage("");
             setErrorMessage("");
         } catch (e) {
             setWaitMessage("");
+            console.error(e);
             setErrorMessage(`Error: ${e.message}`);
         }
     }
 
-    // TODO: buy endpoint
+    /**
+     * @param {Contract} contract 
+     */
+    async function buyContract(contract) {
+        setWaitMessage("Building transaction...");
+
+        await wait(100);
+
+        try {
+            const tx = new Tx();
+            const nominalPrice = contract.price.sub(new Value(contract.forSale.lovelace));
+            const [paymentUtxos, spareUtxos] = walletState.pickUtxos(nominalPrice); // the contract utxos should cover the rest
+
+            for (const utxo of paymentUtxos) {
+                tx.addInput(utxo);
+            }
+
+            for (const utxo of contract.utxos) {
+                tx.addInput(utxo, new IntData(42n)); // dummy redeemer
+            }
+
+            tx.addScript(getCompiledProgram());
+
+            // make sure the seller gets their lovelace, with the appropriate nonce (to avoid double satisfaction)
+            const datum =  Datum.hashed(new IntData(contract.nonce));
+
+            tx.addOutput(new TxOutput(contract.sellerAddress, contract.price, datum));
+
+            const changeAddress = walletState.getChangeAddress();
+
+            // send the contract inputs to the buyer
+            for (const utxo of contract.utxos) {
+                tx.addOutput(new TxOutput(
+                    changeAddress,
+                    utxo.value,
+                ));
+            }
+
+            // send any change back to the buyer
+            tx.setChangeAddress(changeAddress);
+
+            if (contract.buyer !== null) {
+               tx.addRequiredSigner(contract.buyer);
+            }
+
+            tx.setCollateralInput(walletState.pickCollateral());
+
+            //console.log(tx.dump());
+
+            await tx.finalize(network.params, spareUtxos);
+
+            //console.log(tx.dump());
+
+            setWaitMessage("Waiting for wallet signature...");
+
+            const pkws = await wallet.signTx(tx);
+
+            setWaitMessage("Verifying signature...");
+            for (const pkw of pkws) {
+                tx.addSignature(pkw);
+            }
+
+            setWaitMessage("Submitting transaction...");
+
+            console.log(`submitted tx ${await network.submitTx(tx)}`);
+
+            // add to pending list
+            pushPendingContract(new Contract(contract.datum, contract.utxos, 2)); // ideally this is handled by the wallet
+
+            setWaitMessage("");
+            setErrorMessage("");
+        } catch(e) {
+            setWaitMessage("");
+            console.error(e);
+            setErrorMessage(`Error: ${e.message}`);
+        }
+    }
 
     /**
      * @param {string} errorMsg 
@@ -375,13 +537,14 @@ function App(props) {
         return html`
             <div id="welcome-wrapper">
                 <div id="welcome">
-                    <p>Welcome to PicoSwap, a showcase of the <${Link} href="https://github.com/hyperion-bt/Helios" text="HeliosLang"/> library.</p>
-                    <br/>
-                    <p>Here you can perform secure atomic swaps of your Cardano NFTs and other native tokens, 100% client-side.</p>
-                    <br/>
-                    <p>Right now PicoSwap only works with the Eternl wallet, and only with the preview testnet. We will expand this after the Vasil HFC.</p>
-                    <br/>
-                    <p>Connect your wallet to get started.</p>
+                    <h1><img src="./img/picoswap-logo-black.svg"/></h1>
+                    <div class="content">
+                        <p>With PicoSwap you can perform secure atomic swaps of your Cardano NFTs and other native tokens, 100% client-side (powered by the <${Link} href="https://github.com/hyperion-bt/Helios" text="HeliosLang"/> library).</p>
+                        <br/>
+                        <p>Right now PicoSwap only works with the <${Link} href="https://chrome.google.com/webstore/detail/eternl/kmhcihpebfmpgmihbkipmjlmmioameka" text="Eternl"/> wallet, and only with the preview testnet. We will expand this after the V2 parameter update.</p>
+                        <br/>
+                        <p>Connect your wallet to get started.</p>
+                    </div>
                 </div>
             </div>
         `;
@@ -418,102 +581,20 @@ function App(props) {
         return html`<${SaleForm} balance=${balance} onCancel=${cancelSale} onSubmit=${submitContract}/>`;
     }
 
-    /**
-     * @param {Value} value 
-     * @returns {UI[]}
-     */
-    function renderAssets(value) {
-        /** @type {UI[]} */
-        const elems = [];
-
-        if (value.lovelace > 0n) {
-            elems.push(html`<p>${Number(value.lovelace)/1000000} ${ADA}</p>`)
-        }
-
-        for (const mph of value.assets.mintingPolicies) {
-            const tokenNames = value.assets.getTokenNames(mph);
-
-            for (const tokenName of tokenNames) {
-                const fullName = mph.hex + "." + bytesToHex(tokenName);
-
-                elems.push(html`<p><span>${value.assets.get(mph, tokenName).toString()}</span>${SPACE}<pre title="${fullName}">${fullName}</pre></p>`);
-            }
-        }
-
-        return elems;
-    }
-
-    /**
-     * @param {Contract} c
-     * @returns {UI[]}
-     */
-    function renderContract(c) {
-        /** @type {UI[]} */
-        const fields = [];
-
-        const isSeller = walletState.isOwnPubKeyHash(c.seller);
-        const isPublic = c.buyer === null;
-        const canBuy   = isPublic || walletState.isOwnPubKeyHash(c.buyer);
-
-        /** @type {UI[]} */
-        const actions = [];
-
-        if (isSeller) {
-            actions.push(html`<button onClick=${() => cancelContract(c)}>Cancel</button>`);
-        }
-        
-        if ((!isSeller && canBuy) || (canBuy && !isPublic)) {
-            actions.push(html`<button onClick=${() => buyContract(c)}>Buy</button>`);
-        }
-
-        fields.push(html`<td>${actions}</td>`);
-
-        const nominalAssets = c.forSale.sub(new Value(c.forSale.lovelace));
-        const nominalPriceLovelace = c.price.lovelace - c.forSale.lovelace;
-
-        fields.push(html`<td>${renderAssets(nominalAssets)}</td>`);
-        fields.push(html`<td>${(Number(nominalPriceLovelace)/1000000).toString()} ${ADA}</td>`);
-
-        const sellerHex = bytesToHex(c.seller.bytes);
-        fields.push(html`<td><pre title="${sellerHex}">${sellerHex}</pre></td>`);
-
-        if (isPublic) {
-            fields.push(html`<td><i>public</i></td>`);
-        } else {
-            const buyerHex = bytesToHex(c.buyer.bytes);
-            fields.push(html`<td><pre title="${buyerHex}">${buyerHex}</pre></td>`);
-        }
-        
-        return fields;
-    }
-
     function renderOverview() {
-        const cs = contracts === null ? [] : contracts;
-
         return html`
-            <div id="overview-wrapper">
-                <div id="overview">
-                    <div class="form-title">
-                        <h1>Active Sales</h1>
-                    </div>
-                    <div id="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Action</th>
-                                    <th>Assets</th>
-                                    <th>Price</th>
-                                    <th>Seller</th>
-                                    <th>Buyer</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${cs.map(c => html`<tr>${renderContract(c)}</tr>`)}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <${Overview} 
+                walletState=${walletState} 
+                pending=${pending} 
+                contracts=${contracts} 
+                isSyncing=${isSyncing} 
+                onSync=${syncNetwork} 
+                onCancelContract=${cancelContract} 
+                onBuyContract=${buyContract} 
+                waitMessage=${waitMessage} 
+                hidePublic=${hidePublic} 
+                onChangeHidePublic=${setHidePublic}
+            />
         `;
     }
 

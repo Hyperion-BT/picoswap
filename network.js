@@ -100,7 +100,13 @@ export class PreviewNetwork {
         const url = `https://cardano-${this.name}.blockfrost.io/api/v0/addresses/${addr.toBech32()}/utxos?order=asc`;
 
         /** @type {{}[]} */
-        const all = await fetch(url, this.fetchConfig).then(response => response.json());
+        let all = await fetch(url, this.fetchConfig).then(response => {
+            return response.json()
+        });
+
+        if (all?.status_code > 299) {
+            all = [];
+        }
 
         return all.map(obj => {
             return new UTxO(

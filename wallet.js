@@ -73,7 +73,7 @@ export class WalletState {
         let sum = new Value();
 
         /** @type {UTxO[]} */
-        const notYetPicked = this.#utxos.slice();
+        let notYetPicked = this.#utxos.slice();
 
         /** @type {UTxO[]} */
         const picked = [];
@@ -91,7 +91,9 @@ export class WalletState {
                 return Number(getQuantity(a) - getQuantity(b));
             });
 
+
             let count = 0n;
+            const remaining = [];
 
             while (count < neededQuantity) {
                 const utxo = notYetPicked.shift();
@@ -99,11 +101,19 @@ export class WalletState {
                 if (utxo === undefined) {
                     throw new Error("not enough utxos to cover amount");
                 } else {
-                    count += getQuantity(utxo);
-                    picked.push(utxo);
-                    sum = sum.add(utxo.value);
+                    const qty = getQuantity(utxo);
+
+                    if (qty > 0n) {
+                        count += qty;
+                        picked.push(utxo);
+                        sum = sum.add(utxo.value);
+                    } else {
+                        remaining.push(utxo)
+                    }
                 }
             }
+
+            notYetPicked = remaining;
         }
 
         for (const mph of mphs) {

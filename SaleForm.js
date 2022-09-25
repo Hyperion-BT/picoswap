@@ -18,8 +18,13 @@ export function SaleForm(props) {
 
     const isValid = assetInput.isValid() && priceInput.isValid() && buyerInput.isValid();
 
-    function submit() {
+    /**
+     * @param {Event} e 
+     */
+    function submit(e) {
+        e.target.disabled = true;
         props.onSubmit(assetInput.getValue(), priceInput.getValue(), buyerInput.getAddress());
+        e.target.disabled = false;
     }
 
     return html`

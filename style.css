@@ -2,7 +2,10 @@
     --green: #afdb57;
     --orange: #ffa117;
     --text-color: #181818;
-    --link-color: #181818;
+    --link-color: #2196f3;
+    --gap: 10px;
+    --dgap: 20px; /* double gap */
+    --bradius: 5px;
 }
 
 
@@ -17,7 +20,7 @@
 
 a {
     position: relative;
-    /* text-decoration: none; */
+    text-decoration: none;
     color: var(--link-color);
 }
 
@@ -41,7 +44,7 @@ h1 {
 button {
     cursor: pointer;
     border: none;
-    border-radius: 5px;
+    border-radius: var(--bradius);
     font-weight: bold;
 }
 
@@ -55,9 +58,14 @@ input, select {
     border: none;
     border-style: inset;
     background-color: white;
-    border-radius: 5px;
+    border-radius: var(--bradius);
     padding-left: 3px;
     padding-right: 3px;
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
 }
 
 input[invalid] {
@@ -93,7 +101,7 @@ input:disabled, select:disabled {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: var(--dgap);
 }
 
 .form-title button.close {
@@ -110,11 +118,10 @@ input:disabled, select:disabled {
 
 .form-row > * {
     flex-grow: 1;
-    margin-bottom: 10px;
 }
 
 .form-row > label {
-    margin-right: 20px;
+    margin-right: var(--dgap);
     flex-grow: unset;
 }
 
@@ -132,7 +139,7 @@ input:disabled, select:disabled {
 }
 
 .form-final-row {
-    margin-top: 10px;
+    margin-top: var(--gap);
 }
 
 /* 
@@ -147,7 +154,7 @@ html, body {
 body {
     background: linear-gradient(45deg, #fcb37e, #5421b3);
     display: grid;
-    grid-template-rows: 50px 1fr 30px;
+    grid-template-rows: 60px 1fr 30px;
 }
 
 header {
@@ -155,12 +162,13 @@ header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 5px;
+    padding: var(--gap);
 }
 
 header img.logo {
     height: 40px;
 }
+
 
 header div {
     display: flex;
@@ -173,13 +181,13 @@ header button {
 }
 
 header button.new-sale {
-    margin-right: 10px;
+    margin-right: var(--gap);
     padding: 5px;
     background-color: var(--orange);
 }
 
 header button.show-contract {
-    margin-right: 10px;
+    margin-right: var(--gap);
     padding: 5px;
     background-color: var(--green);
 }
@@ -201,6 +209,18 @@ header button.eternl {
 
 header button.eternl * {
     height: 36px;
+}
+
+@media (max-width: 600px) {
+    header button.show-contract {
+        display: none;
+    }
+}
+
+@media (max-width: 700px) {
+    header img.logo {
+        height: 20px;
+    }
 }
 
 /*
@@ -291,10 +311,27 @@ header button.eternl * {
     letter-spacing: 0.05rem;
     line-height: 1.5rem;
     max-width: min(90vw, 560px);
-    border-radius: 5px;
+    border-radius: var(--bradius);
     background-color: var(--green);
     color: var(--text-color);
     box-shadow: 6px 3px 3px black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#welcome h1 {
+    margin-bottom: 15px;
+}
+
+#welcome h1 img {
+    height: 30px;
+}
+
+#welcome .content {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: var(--bradius);
+    padding: var(--gap);
 }
 
 /*
@@ -313,8 +350,8 @@ header button.eternl * {
     display: flex;
     flex-direction: column;
     max-height: max-content;
-    border-radius: 5px;
-    padding: 20px;
+    border-radius: var(--bradius);
+    padding: var(--dgap);
     width: min(95vw, 700px);
     font-family: 'Courier New', Courier, monospace;
     background-color: var(--green);
@@ -324,25 +361,25 @@ header button.eternl * {
 
 #contract-info #script {
     position: relative;
-    margin-bottom: 10px;
+    margin-bottom: var(--gap);
     overflow-x: scroll;
     white-space: nowrap;
     max-height: max-content;
     background-color: white;
-    padding: 10px;
+    padding: var(--gap);
     border-style: inset;
-    border-radius: 5px;
+    border-radius: var(--bradius);
 }
 
 #contract-info .form-row {
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: var(--gap);
 }
 
 #contract-info #address {
-    border-radius: 5px;
+    border-radius: var(--bradius);
     background-color: white;
-    padding: 10px;
+    padding: var(--gap);
     border-style: inset;
     display: flex;
     flex-direction: row;
@@ -390,26 +427,31 @@ header button.eternl * {
 }
 
 #sale-form {
-    padding: 20px;
+    padding: var(--dgap);
     background-color: var(--green);
-    border-radius: 5px;
+    border-radius: var(--bradius);
+    box-shadow: 6px 3px 3px black;
 }
 
 #sale-form .form-row > label {
     width: 50px;
-    margin-right: 10px;
+    margin-right: var(--gap);
+}
+
+#sale-form .form-row > * {
+    margin-bottom: var(--gap);
 }
 
 #sale-form .asset-input {
-    padding: 10px;
+    padding: var(--gap);
     background-color: rgba(255, 255, 255, 0.6);
-    border-radius: 5px;
+    border-radius: var(--bradius);
     display: flex;
     flex-direction: column;
 }
 
 #sale-form .asset-input label {
-    margin-top: 10px;
+    margin-top: var(--gap);
 }
 
 #sale-form .asset-input label:first-child {
@@ -417,9 +459,9 @@ header button.eternl * {
 }
 
 #sale-form .price-input {
-    padding: 10px;
+    padding: var(--gap);
     background-color: rgba(255, 255, 255, 0.6);
-    border-radius: 5px;
+    border-radius: var(--bradius);
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -435,8 +477,8 @@ header button.eternl * {
 }
 
 #sale-form .address-input {
-    padding: 10px;
-    border-radius: 5px;
+    padding: var(--gap);
+    border-radius: var(--bradius);
     background-color: rgba(255, 255, 255, 0.6);
 }
 
@@ -444,13 +486,11 @@ header button.eternl * {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: var(--dgap);
 }
 
 #sale-form .address-input > div:first-child input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    margin-left: 10px;
+    margin-left: var(--gap);
 }
 
 #sale-form .submit {
@@ -459,6 +499,7 @@ header button.eternl * {
 
 #overview-wrapper {
     margin-top: 40px;
+    margin-bottom: 40px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -467,30 +508,91 @@ header button.eternl * {
 #overview {
     max-width: calc(100vw - 10px);
     background-color: var(--green);
-    border-radius: 5px;
-    padding: 20px;
+    border-radius: var(--bradius);
+    padding: var(--dgap);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 6px 3px 3px black;
+}
+
+#overview .form-title button {
+    width: 30px;
+    height: 30px;
+    background-color: inherit;
+}
+
+#overview .form-title button:disabled > img {
+    animation: spin;
+    animation-duration: 2s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-play-state: running;
+}
+
+@keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}
+
+#overview .filters {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: var(--bradius);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: var(--gap);
+    padding: var(--gap);
+}
+
+#overview .filters .form-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 #overview #table-wrapper {
     background-color: white;
     border: inset;
-    border-radius: 5px;
+    border-radius: var(--bradius);
     overflow-x: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 #overview table {
     border-collapse: collapse;
     width: max-content;
+    min-width: 60vw;
+    flex-grow: 1;
 }   
 
 #overview table tr {
     height: 2rem;
 }
 
+#overview thead th {
+    text-align: left;
+}
+
+#overview tbody tr:last-child {
+    height: unset;
+}
+
 #overview table tr td:nth-child(2) p {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+#overview table tr td:nth-child(3) {
+    text-align: right;
 }
 
 #overview table th, #overview table td {
@@ -502,6 +604,14 @@ header button.eternl * {
     border-bottom: 1px solid #ddd;
 }
 
+#overview tbody tr.state-0, #overview tbody tr.state-2 {
+    opacity: 0.6;
+}
+
+#overview table tr.empty {
+    text-align: center;
+}
+
 #overview table th, #overview table td {
     border-right: 1px solid #ddd;
 }
@@ -511,16 +621,36 @@ header button.eternl * {
 }
 
 #overview table button {
-    background-color: var(--orange);
-    height: 2rem;
+    height: 1.4rem;
+    width: 60px;
     padding-left: 3px;
     padding-right: 3px;
+    margin-right: 5px;
+}
+
+#overview table button.cancel {
+    background-color: red;
+    color: white;
+}
+
+#overview table button.buy {
+    background-color: var(--orange);
+}
+
+#overview table button:last-child {
+    margin-right: 0;
 }
 
 #overview tbody pre {
-    max-width: 160px;
     text-overflow: ellipsis;
     overflow: hidden;
+    flex-grow: 1;
+}
+
+@media (max-width: 1000px) {
+    #overview tbody pre {
+        max-width: 160px;
+    }
 }
 
 #global-error {
@@ -528,14 +658,17 @@ header button.eternl * {
     top: 0;
     right: 0;
     width: max-content;
+    max-width: 80vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
     height: 40px;
     overflow: hidden;
     background-color: red;
     color: white;
-    border-radius: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    margin: 5px;
+    border-radius: var(--bradius);
+    padding-left: var(--gap);
+    padding-right: var(--gap);
+    margin: var(--gap);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -548,8 +681,12 @@ header button.eternl * {
     animation-play-state: running;
 }
 
+#global-error p {
+    display: inline-block;
+}
+
 #global-error button.close {
-    margin-left: 10px;
+    margin-left: var(--gap);
     width: 20px;
     height: 20px;
 }
@@ -576,7 +713,7 @@ footer {
 footer div.contract-address {
     background-color: var(--green);
     padding: 5px;
-    border-radius: 5px;
+    border-radius: var(--bradius);
 }
 
 footer div.social a {
