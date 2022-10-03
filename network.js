@@ -1,7 +1,7 @@
 /** @typedef {import('./helios.js').Tx} Tx */
 import { Assets, ConstrData, Datum, Hash, MintingPolicyHash, NetworkParams, Value, TxOutput, UTxO, hexToBytes } from './helios.js';
 
-const BLOCKFROST_API_KEY = "previewABZvPsH0zOcXdBJZarI8A61GUkyXbJIk";
+const BLOCKFROST_API_KEY = "previewIMakoqNtbySYNVIpOsPKv16ZV4vhes6B";
 
 const NETWORK_PARAMS_URL = "https://d1t0d7c2nekuk0.cloudfront.net/preview.json";
 
