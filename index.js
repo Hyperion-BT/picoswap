@@ -3,7 +3,7 @@ import { html, render } from "./render.js";
 import { useState, useEffect, useMemo } from "./hooks.js";
 
 /** @typedef {import('./helios.js').Address} Address */
-import { ConstrData, Datum, IntData, Value, Tx, UTxO, TxOutput, Hash } from "./helios.js";
+import { ConstrData, Datum, IntData, Value, Tx, UTxO, TxOutput, TxId } from "./helios.js";
 import { calcScriptAddress, Contract, generateDatum, getCompiledProgram, highlightedContract } from "./contract.js";
 /** @typedef {import('./wallet.js').WalletState} WalletState */
 import { Wallet } from "./wallet.js";
@@ -293,7 +293,7 @@ function App(props) {
 
             //console.log(JSON.stringify(tx.dump(), undefined, 4));
 
-            const txId = Hash.fromHex(await wallet.submitTx(tx));
+            const txId = TxId.fromHex(await wallet.submitTx(tx));
 
             console.log(`submitted tx ${txId.hex}`);
 

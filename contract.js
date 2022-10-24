@@ -2,7 +2,7 @@ import { html, SPACE } from "./render.js";
 
 /** @typedef {import("./helios.js").UplcData} UplcData */
 /** @typedef {import("./helios.js").UplcProgram} UplcProgram */
-import { Address, ConstrData, InlineDatum, Program, PubKeyHash, Value, hexToBytes, bytesToHex, highlight, UTxO } from "./helios.js";
+import { Address, ConstrData, Program, PubKeyHash, Value, hexToBytes, bytesToHex, highlight, UTxO } from "./helios.js";
 
 const optimize = false;
 
@@ -257,7 +257,7 @@ export class Contract {
         for (const utxo of utxos) {
             const datum = utxo.origOutput.datum;
 
-            if (datum !== null && datum instanceof InlineDatum) {                
+            if (datum !== null && datum.isInline()) {                
                 const key = bytesToHex(datum.data.toCbor());
 
                 const lst = groups.get(key);

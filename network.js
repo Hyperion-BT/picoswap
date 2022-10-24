@@ -1,5 +1,5 @@
 /** @typedef {import('./helios.js').Tx} Tx */
-import { Assets, ConstrData, Datum, Hash, MintingPolicyHash, NetworkParams, Value, TxOutput, UTxO, hexToBytes } from './helios.js';
+import { Assets, ConstrData, Datum, TxId, MintingPolicyHash, NetworkParams, Value, TxOutput, UTxO, hexToBytes } from './helios.js';
 
 const BLOCKFROST_API_KEY = "previewIMakoqNtbySYNVIpOsPKv16ZV4vhes6B";
 
@@ -110,7 +110,7 @@ export class PreviewNetwork {
 
         return all.map(obj => {
             return new UTxO(
-                Hash.fromHex(obj.tx_hash),
+                TxId.fromHex(obj.tx_hash),
                 BigInt(obj.output_index),
                 new TxOutput(
                     addr,
