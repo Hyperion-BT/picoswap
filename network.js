@@ -18,7 +18,8 @@ function blockFrostAmountToValue(obj) {
         if (item.unit == "lovelace") {
             value = value.add(new Value(qty));
         } else {
-            let mph = MintingPolicyHash.fromHex(item.unit);
+            let policyID = `${item.unit}`.substring(0, 56);
+            let mph = MintingPolicyHash.fromHex(policyID);
 
             /** @type {number[]} */
             let token = [];
