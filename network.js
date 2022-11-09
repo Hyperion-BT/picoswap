@@ -18,13 +18,10 @@ function blockFrostAmountToValue(obj) {
         if (item.unit == "lovelace") {
             value = value.add(new Value(qty));
         } else {
-            let policyID = `${item.unit}`.substring(0, 56);
+            let policyID = item.unit.substring(0, 56);
             let mph = MintingPolicyHash.fromHex(policyID);
 
-            /** @type {number[]} */
-            let token = [];
-
-            // TODO: extract tokenName from blockFrost data structure
+            let token = hexToBytes(item.unit.substring(56));
 
             value = value.add(new Value(0n, new Assets([
                 [mph, [
