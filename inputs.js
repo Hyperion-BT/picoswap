@@ -33,7 +33,9 @@ function renderInput(props) {
 function renderSelect(id, value, options, onChange) {
     return html`
         <select id=${id} value=${value} onChange=${onChange} disabled=${options.length == 1 && options[0].value == value}>
-            ${options.map(optionValue => html`<option key=${optionValue.value} value=${optionValue.value}>${optionValue.label}</option>`)}
+            ${options.map(optionValue =>
+                html`<option key=${optionValue.value} value=${optionValue.value}>${optionValue.label}</option>`
+            )}
         </select>
     `;
 }

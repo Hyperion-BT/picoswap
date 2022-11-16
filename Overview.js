@@ -45,8 +45,11 @@ export function Overview(props) {
 
                 elems.push(html`
                     <p>
-                        <span>${value.assets.get(mph, tokenName).toString()}</span>${SPACE}<pre title="${mph.hex}">
-                            <${Link} href="https://preview.cexplorer.io/policy/${mph.hex}" text="${formattedPolicyID}" alt="Policy" />.${tokenNameString}
+                        <span>${value.assets.get(mph, tokenName).toString()}</span>${SPACE}
+                        <pre title="${mph.hex}">
+                            <${Link}
+                                href="https://preview.cexplorer.io/policy/${mph.hex}"
+                                text="${formattedPolicyID}" alt="Policy" />.${tokenNameString}
                         </pre>
                     </p>
                 `);
