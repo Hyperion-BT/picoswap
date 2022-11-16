@@ -4,6 +4,7 @@ import { html, SPACE } from "./render.js";
 import { Value, bytesToHex, Address } from "./helios.js";
 import { ADA } from "./inputs.js";
 import { Link } from "./Link.js";
+import { fromHexToText, formatMintingPolicyID } from "./utils.js";
 
 /** @typedef {import("./contract.js").Contract} Contract */
 /** @typedef {import("./wallet.js").WalletState} WalletState */
@@ -39,14 +40,13 @@ export function Overview(props) {
             const tokenNames = value.assets.getTokenNames(mph);
 
             for (const tokenName of tokenNames) {
-                const bech32 = mph.toBech32();
-
-                const fullName = bech32 + "." + bytesToHex(tokenName);
+                const formattedPolicyID = formatMintingPolicyID(mph);
+                const tokenNameString = fromHexToText(bytesToHex(tokenName));
 
                 elems.push(html`
                     <p>
-                        <span>${value.assets.get(mph, tokenName).toString()}</span>${SPACE}<pre title="${fullName}">
-                            <${Link} href="https://preview.cexplorer.io/asset/${bech32}" text="${bech32}"/>.${bytesToHex(tokenName)}
+                        <span>${value.assets.get(mph, tokenName).toString()}</span>${SPACE}<pre title="${mph.hex}">
+                            <${Link} href="https://preview.cexplorer.io/policy/${mph.hex}" text="${formattedPolicyID}" alt="Policy" />.${tokenNameString}
                         </pre>
                     </p>
                 `);
