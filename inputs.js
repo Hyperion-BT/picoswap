@@ -26,7 +26,7 @@ function renderInput(props) {
 /**
  * @param {string} id 
  * @param {string} value 
- * @param {{value: String, label: String}[]} options
+ * @param {{value: string, label: string}[]} options
  * @param {() => void} onChange 
  * @returns {UI}
  */
