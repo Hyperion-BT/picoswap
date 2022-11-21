@@ -2,8 +2,7 @@
 import { html } from "./render.js";
 import { useState } from "./hooks.js";
 /** @typedef {import("./helios.js").MintingPolicyHash} MintingPolicyHash */
-import { Address, Assets, Value, bytesToHex, hexToBytes } from "./helios.js";
-import { fromHexToText } from "./utils.js";
+import { Address, Assets, Value, bytesToHex, bytesToText, hexToBytes } from "./helios.js";
 
 export const ADA = "₳";
 
@@ -220,7 +219,7 @@ export class AdaInput {
                 <label for=${tnId}>Token Name</label>
                 ${renderSelect(tnId, bytesToHex(this.#tokenName),
                         this.#tokenNames.map(t => {
-                            return {value: bytesToHex(t), label: fromHexToText(bytesToHex(t)) };
+                            return {value: bytesToHex(t), label: bytesToText(t)};
                         }),
                         (/** @type {Event} */ e) => this.#setTokenName(hexToBytes(e.target?.value))
                     )

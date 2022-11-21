@@ -1,10 +1,10 @@
 /** @typedef {import("./render.js").UI} UI */
 import { html, SPACE } from "./render.js";
 /** @typedef {import("./helios.js").PubKeyHash} PubKeyHash */
-import { Value, bytesToHex, Address } from "./helios.js";
+import { Address, Value, bytesToText } from "./helios.js";
 import { ADA } from "./inputs.js";
 import { Link } from "./Link.js";
-import { fromHexToText, formatMintingPolicyID } from "./utils.js";
+import { formatMintingPolicyID } from "./utils.js";
 
 /** @typedef {import("./contract.js").Contract} Contract */
 /** @typedef {import("./wallet.js").WalletState} WalletState */
@@ -41,7 +41,7 @@ export function Overview(props) {
 
             for (const tokenName of tokenNames) {
                 const formattedPolicyID = formatMintingPolicyID(mph);
-                const tokenNameString = fromHexToText(bytesToHex(tokenName));
+                const tokenNameString = bytesToText(tokenName);
 
                 elems.push(html`
                     <p>
