@@ -3,6 +3,7 @@ import { html } from "./render.js";
 import { useState } from "./hooks.js";
 /** @typedef {import("./helios.js").MintingPolicyHash} MintingPolicyHash */
 import { Address, Assets, Value, bytesToHex, hexToBytes } from "./helios.js";
+import { parseTokenName } from "./utils.js";
 
 export const ADA = "₳";
 
@@ -25,16 +26,16 @@ function renderInput(props) {
 /**
  * @param {string} id 
  * @param {string} value 
- * @param {string[]} options 
+ * @param {{value: string, label: string}[]} options
  * @param {() => void} onChange 
  * @returns {UI}
  */
 function renderSelect(id, value, options, onChange) {
     return html`
-        <select id=${id} value=${value} onChange=${onChange} disabled=${options.length == 1 && options[0] == value}>
-            ${
-                options.map(optionValue => html`<option key=${optionValue} value=${optionValue}>${optionValue}</option>`)
-            }
+        <select id=${id} value=${value} onChange=${onChange} disabled=${options.length == 1 && options[0].value == value}>
+            ${options.map(optionValue =>
+                html`<option key=${optionValue.value} value=${optionValue.value}>${optionValue.label}</option>`
+            )}
         </select>
     `;
 }
@@ -207,11 +208,23 @@ export class AdaInput {
         return html`
             <div id=${this.#id} class="asset-input">
                 <label for=${mphId}>Policy ID</label>
-                ${renderSelect(mphId, this.#mph.toBech32(), this.#balance.assets.mintingPolicies.map(mph => mph.toBech32()), (/** @type {Event} */ e) => this.#setMph(
-                    this.#balance.assets.mintingPolicies.find(mph => mph.toBech32() == e.target?.value)
-                ))}
+                ${renderSelect(mphId, this.#mph.toBech32(),
+                        this.#balance.assets.mintingPolicies.map(mph => {
+                            return {value: mph.toBech32(), label: mph.hex};
+                        }),
+                        (/** @type {Event} */ e) => this.#setMph(
+                            this.#balance.assets.mintingPolicies.find(mph => mph.toBech32() == e.target?.value)
+                        )
+                    )
+                }
                 <label for=${tnId}>Token Name</label>
-                ${renderSelect(tnId, bytesToHex(this.#tokenName), this.#tokenNames.map(t => bytesToHex(t)), (/** @type {Event} */ e) => this.#setTokenName(hexToBytes(e.target?.value)))}
+                ${renderSelect(tnId, bytesToHex(this.#tokenName),
+                        this.#tokenNames.map(t => {
+                            return {value: bytesToHex(t), label: parseTokenName(t)};
+                        }),
+                        (/** @type {Event} */ e) => this.#setTokenName(hexToBytes(e.target?.value))
+                    )
+                }
                 <label for=${qtyId}>Quantity</label>
                 ${renderInput({id: qtyId, value: this.#rawValue, onInput: this.#setRawValue, error: error, disabled: false})}
             </div>
