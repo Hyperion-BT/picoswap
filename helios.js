@@ -22,4 +22,4 @@ export {
     bytesToText,
     hexToBytes,
     highlight,
-} from "https://www.hyperion-bt.org/Helios/helios.js";
+} from "https://www.hyperion-bt.org/helios/helios.js";

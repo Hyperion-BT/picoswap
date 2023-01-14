@@ -1,6 +1,6 @@
 # PicoSwap
 
-PicoSwap is a Cardano atomic swap DApp. PicoSwap uses the [Helios](https://github.com/Hyperion-BT/Helios) library for the Smart Contract and Tx logic, and [Preact/Htm](https://preactjs.com/guide/v10/getting-started#alternatives-to-jsx) as a minimal UI framework.
+PicoSwap is a Cardano atomic swap DApp. PicoSwap uses the [Helios](https://github.com/hyperion-bt/helios) library for the Smart Contract and Tx logic, and [Preact/Htm](https://preactjs.com/guide/v10/getting-started#alternatives-to-jsx) as a minimal UI framework.
 
 This repository serves as a template for building Cardano DApps using only client-side JavaScript.
 
