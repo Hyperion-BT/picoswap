@@ -2,7 +2,7 @@ import { html, SPACE } from "./render.js";
 
 /** @typedef {import("./helios.js").UplcData} UplcData */
 /** @typedef {import("./helios.js").UplcProgram} UplcProgram */
-import { Address, ConstrData, Program, PubKeyHash, Value, hexToBytes, bytesToHex, highlight, UTxO } from "./helios.js";
+import { Address, ConstrData, Program, PubKeyHash, Value, hexToBytes, bytesToHex, highlight, UTxO, ListData } from "./helios.js";
 
 const optimize = false;
 
@@ -35,7 +35,7 @@ struct Datum {
     }
 }
 
-func main(datum: Datum, ctx: ScriptContext) -> Bool {
+func main(datum: Datum, _, ctx: ScriptContext) -> Bool {
     tx: Tx = ctx.tx;
 
     // sellers can do whatever they want with the locked UTxOs
@@ -77,11 +77,11 @@ export function getCompiledProgram() {
  * @returns {Address}
  */
 export function calcScriptAddress() {
-    return Address.fromValidatorHash(true, Program.new(contractScript).compile(optimize).validatorHash);
+    return Address.fromValidatorHash(Program.new(contractScript).compile(optimize).validatorHash);
 }
 
 
-export const highlightedContract = (function() {
+export const highlightedContract = (function () {
     const elems = [];
 
     const src = contractScript.trim();
@@ -156,7 +156,7 @@ export class Contract {
     #state;
 
     /**
-     * @param {ConstrData} datum 
+     * @param {ListData} datum 
      * @param {UTxO[]} utxos
      * @param {number} state 
      */
@@ -172,7 +172,7 @@ export class Contract {
     get datum() {
         return this.#datum;
     }
-    
+
     /**
      * @type {UTxO[]}
      */
@@ -184,7 +184,7 @@ export class Contract {
      * @type {PubKeyHash}
      */
     get seller() {
-        return new PubKeyHash(this.#datum.fields[0].bytes);
+        return new PubKeyHash(this.#datum.list[0].bytes);
     }
 
     /**
@@ -192,14 +192,14 @@ export class Contract {
      * @type {Address}
      */
     get sellerAddress() {
-        return Address.fromPubKeyHash(true, this.seller);
+        return Address.fromPubKeyHash(this.seller);
     }
 
     /**
      * @type {Value}
      */
     get price() {
-        return Value.fromData(this.#datum.fields[1]);
+        return Value.fromUplcData(this.#datum.list[1]);
     }
 
     /**
@@ -213,10 +213,10 @@ export class Contract {
      * @type {?PubKeyHash}
      */
     get buyer() {
-        const option = this.#datum.fields[2];
+        const option = this.#datum.list[2];
 
         if (option.index == 0) {
-            return new PubKeyHash(option.fields[0].bytes);
+            return new PubKeyHash(option.list[0].bytes);
         } else {
             return null;
         }
@@ -226,7 +226,7 @@ export class Contract {
      * @type {bigint}
      */
     get nonce() {
-        return this.#datum.fields[3].int;
+        return this.#datum.list[3].int;
     }
 
     /**
@@ -250,14 +250,14 @@ export class Contract {
      */
     static groupUtxos(utxos) {
         // group based on equal datum
-        
+
         /** @type {Map<string, UTxO[]>} */
         const groups = new Map();
 
         for (const utxo of utxos) {
             const datum = utxo.origOutput.datum;
 
-            if (datum !== null && datum.isInline()) {                
+            if (datum !== null && datum.isInline()) {
                 const key = bytesToHex(datum.data.toCbor());
 
                 const lst = groups.get(key);
@@ -271,7 +271,7 @@ export class Contract {
         }
 
         return Array.from(groups.entries()).map(([key, utxos]) => {
-            const datum = ConstrData.fromCbor(hexToBytes(key));
+            const datum = ListData.fromCbor(hexToBytes(key));
 
             return new Contract(datum, utxos);
         });

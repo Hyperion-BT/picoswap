@@ -1,5 +1,5 @@
 /** @typedef {import('./helios.js').Tx} Tx */
-import { Assets, ConstrData, Datum, TxId, MintingPolicyHash, NetworkParams, Value, TxOutput, UTxO, hexToBytes } from './helios.js';
+import { Assets, ListData, Datum, TxId, MintingPolicyHash, NetworkParams, Value, TxOutput, UTxO, hexToBytes } from './helios.js';
 
 const BLOCKFROST_API_KEY = "previewIMakoqNtbySYNVIpOsPKv16ZV4vhes6B";
 
@@ -113,7 +113,7 @@ export class PreviewNetwork {
                 new TxOutput(
                     addr,
                     blockFrostAmountToValue(obj.amount),
-                    Datum.inline(ConstrData.fromCbor(hexToBytes(obj.inline_datum)))
+                    Datum.inline(ListData.fromCbor(hexToBytes(obj.inline_datum)))
                 )
             );
         });
@@ -145,8 +145,8 @@ export class PreviewNetwork {
 
             req.setRequestHeader("content-type", "application/cbor");
             req.setRequestHeader("project_id", BLOCKFROST_API_KEY);
-            
+
             req.send(data);
-        });   
+        });
     }
 }
