@@ -3,7 +3,7 @@ import { html, render } from "./render.js";
 import { useState, useEffect, useMemo } from "./hooks.js";
 
 /** @typedef {import('./helios.js').Address} Address */
-import { ConstrData, Datum, IntData, Value, Tx, UTxO, TxOutput, TxId } from "./helios.js";
+import { Datum, IntData, Value, Tx, UTxO, TxOutput, TxId, ListData } from "./helios.js";
 import { calcScriptAddress, Contract, generateDatum, getCompiledProgram, highlightedContract } from "./contract.js";
 /** @typedef {import('./wallet.js').WalletState} WalletState */
 import { Wallet } from "./wallet.js";
@@ -54,7 +54,7 @@ function App(props) {
         const timer = setInterval(() => {
             syncWallet();
         }, 10000);
-        
+
         return () => {
             clearInterval(timer);
         }
@@ -214,7 +214,7 @@ function App(props) {
             } else if (pc.state == 2) {
                 if (contracts.findIndex(c => c.eq(pc)) != -1) {
                     newPending.push(pc);
-                } 
+                }
             }
         }
 
@@ -262,7 +262,7 @@ function App(props) {
 
             const scriptAddress = calcScriptAddress();
             const changeAddress = walletState.getChangeAddress();
-            const nonce = BigInt(Math.round(Math.random()*10000000));
+            const nonce = BigInt(Math.round(Math.random() * 10000000));
 
             const output = new TxOutput(
                 scriptAddress,
@@ -278,7 +278,7 @@ function App(props) {
             });
 
             tx.addOutput(output);
-            
+
             await tx.finalize(network.params, changeAddress, spareUtxos);
 
             setWaitMessage("Waiting for wallet signature...");
@@ -299,7 +299,7 @@ function App(props) {
 
             // add pending to pending list
             const datum = output.getDatumData();
-            if (datum instanceof ConstrData) {
+            if (datum instanceof ListData) {
                 pushPendingContract(new Contract(datum, [new UTxO(txId, 0n, output)], 0)); // even better would be that the wallet supports tx chaining, so wouldn't have to manage that here
             } else {
                 throw new Error("unexpected");
@@ -357,10 +357,10 @@ function App(props) {
             await tx.finalize(network.params, changeAddress, spareUtxos);
 
             setWaitMessage("Waiting for wallet signature...");
-            
-			//console.log(tx.dump());
 
-			//console.log(getCompiledProgram().src.pretty());
+            //console.log(tx.dump());
+
+            //console.log(getCompiledProgram().src.pretty());
 
             const pkws = await wallet.signTx(tx);
 
@@ -408,7 +408,7 @@ function App(props) {
             tx.attachScript(getCompiledProgram());
 
             // make sure the seller gets their lovelace, with the appropriate nonce (to avoid double satisfaction)
-            const datum =  Datum.hashed(new IntData(contract.nonce));
+            const datum = Datum.hashed(new IntData(contract.nonce));
 
             tx.addOutput(new TxOutput(contract.sellerAddress, contract.price, datum));
 
@@ -422,10 +422,10 @@ function App(props) {
                 ));
             }
 
-            
+
 
             if (contract.buyer !== null) {
-               tx.addSigner(contract.buyer);
+                tx.addSigner(contract.buyer);
             }
 
             tx.addCollateral(walletState.pickCollateral());
@@ -454,7 +454,7 @@ function App(props) {
 
             setWaitMessage("");
             setErrorMessage("");
-        } catch(e) {
+        } catch (e) {
             setWaitMessage("");
             console.error(e);
             setErrorMessage(`Error: ${e.message}`);

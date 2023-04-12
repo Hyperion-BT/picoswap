@@ -3,6 +3,7 @@ export {
     Address,
     Assets,
     ConstrData,
+    ListData,
     Datum,
     IntData,
     MintingPolicyHash,
