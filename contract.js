@@ -216,7 +216,7 @@ export class Contract {
         const option = this.#datum.list[2];
 
         if (option.index == 0) {
-            return new PubKeyHash(option.list[0].bytes);
+            return new PubKeyHash(option.fields[0].bytes);
         } else {
             return null;
         }

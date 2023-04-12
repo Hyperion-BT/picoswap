@@ -34,8 +34,8 @@ function renderSelect(id, value, options, onChange) {
     return html`
         <select id=${id} value=${value} onChange=${onChange} disabled=${options.length == 1 && options[0].value == value}>
             ${options.map(optionValue =>
-                html`<option key=${optionValue.value} value=${optionValue.value}>${optionValue.label}</option>`
-            )}
+        html`<option key=${optionValue.value} value=${optionValue.value}>${optionValue.label}</option>`
+    )}
         </select>
     `;
 }
@@ -113,7 +113,7 @@ export class AdaInput {
 
         return html`
             <div class="price-input">
-                ${renderInput({id: this.#id, value: this.#rawValue, onInput: this.#setRawValue, error: error, disabled: false})}
+                ${renderInput({ id: this.#id, value: this.#rawValue, onInput: this.#setRawValue, error: error, disabled: false })}
                 <p>${ADA}</p>
             </div>
         `;
@@ -124,7 +124,7 @@ export class AdaInput {
  * @param {string} id 
  * @param {Value} balance 
  */
- export class AssetInput {
+export class AssetInput {
     #id;
     #balance;
     #rawValue;
@@ -202,31 +202,31 @@ export class AdaInput {
         const error = AssetInput.validate(this.#rawValue, this.#balance, this.#mph, this.#tokenName);
 
         const mphId = this.#id + "-mph";
-        const tnId  = this.#id + "-tn";
+        const tnId = this.#id + "-tn";
         const qtyId = this.#id + "-qty";
 
         return html`
             <div id=${this.#id} class="asset-input">
                 <label for=${mphId}>Policy ID</label>
                 ${renderSelect(mphId, this.#mph.toBech32(),
-                        this.#balance.assets.mintingPolicies.map(mph => {
-                            return {value: mph.toBech32(), label: mph.hex};
-                        }),
-                        (/** @type {Event} */ e) => this.#setMph(
-                            this.#balance.assets.mintingPolicies.find(mph => mph.toBech32() == e.target?.value)
-                        )
-                    )
-                }
+            this.#balance.assets.mintingPolicies.map(mph => {
+                return { value: mph.toBech32(), label: mph.hex };
+            }),
+            (/** @type {Event} */ e) => this.#setMph(
+                this.#balance.assets.mintingPolicies.find(mph => mph.toBech32() == e.target?.value)
+            )
+        )
+            }
                 <label for=${tnId}>Token Name</label>
                 ${renderSelect(tnId, bytesToHex(this.#tokenName),
-                        this.#tokenNames.map(t => {
-                            return {value: bytesToHex(t), label: parseTokenName(t)};
-                        }),
-                        (/** @type {Event} */ e) => this.#setTokenName(hexToBytes(e.target?.value))
-                    )
-                }
+                this.#tokenNames.map(t => {
+                    return { value: bytesToHex(t), label: parseTokenName(t) };
+                }),
+                (/** @type {Event} */ e) => this.#setTokenName(hexToBytes(e.target?.value))
+            )
+            }
                 <label for=${qtyId}>Quantity</label>
-                ${renderInput({id: qtyId, value: this.#rawValue, onInput: this.#setRawValue, error: error, disabled: false})}
+                ${renderInput({ id: qtyId, value: this.#rawValue, onInput: this.#setRawValue, error: error, disabled: false })}
             </div>
         `;
     }
@@ -259,18 +259,21 @@ export class AddressInput {
         }
 
         try {
+            console.log('value :>> ', value);
             const address = Address.fromBech32(value);
+            console.log('address :>> ', address);
 
             if (address.pubKeyHash === null) {
                 return "not a regular payment address (script address)";
             }
 
-            if (!address.isForTestnet()) {
+            if (!Address.isForTestnet(address)) {
                 return "not a testnet address";
             }
 
             return "";
         } catch (_e) {
+            console.log('_e :>> ', _e);
             return "invalid address";
         }
     }
@@ -303,10 +306,10 @@ export class AddressInput {
             <div class="address-input">
                 <div>
                     <label for="${isPrivateId}">Private</label>
-                    <input id=${isPrivateId} type="checkbox" ${this.#isPrivate ? "checked" : ""} onClick=${(/** @type {Event} */ _e) => {this.#setIsPrivate(!this.#isPrivate)}}/>
+                    <input id=${isPrivateId} type="checkbox" ${this.#isPrivate ? "checked" : ""} onClick=${(/** @type {Event} */ _e) => { this.#setIsPrivate(!this.#isPrivate) }}/>
                 </div>
                 <label for="${addressInputId}">Address</label>
-                ${renderInput({id: this.#id, value: this.#isPrivate ? this.#rawValue : "", onInput: this.#setRawValue, error: error, disabled: !this.#isPrivate})}
+                ${renderInput({ id: this.#id, value: this.#isPrivate ? this.#rawValue : "", onInput: this.#setRawValue, error: error, disabled: !this.#isPrivate })}
             </div>
         `
     }
