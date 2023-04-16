@@ -1,0 +1,13 @@
+module v__pico__types
+
+struct Datum {
+  seller: PubKeyHash
+  price: Value
+  buyer: Option[PubKeyHash]
+  id: ByteArray
+}
+
+enum Redeemer {
+  CancelSell
+  Buy
+}
