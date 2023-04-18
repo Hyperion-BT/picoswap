@@ -1,3 +1,6 @@
 external/*
 external/**
 external
+node_modules
+dist
+**.d.ts

@@ -1,0 +1,19 @@
+spending v__pico
+
+import { Datum, Redeemer } from "./types.hl"
+
+func main(datum: Datum, redeemer: Redeemer, ctx: ScriptContext) -> Bool {
+  tx: Tx = ctx.tx;
+  Datum { seller, price, buyer, nonce } = datum;
+
+  redeemer.switch {
+    CancelSell => { tx.is_signed_by(seller) },
+    Buy => {
+      tx.value_sent_to_datum(seller, nonce, false) >= price
+        && buyer.switch {
+          None => true,
+          Some{ buyerPkh } => tx.is_signed_by(buyerPkh)
+        }
+    } 
+  }
+}

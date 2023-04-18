@@ -1,0 +1,22 @@
+{
+  "name": "contracts",
+  "version": "1.0.0",
+  "description": "",
+  "type": "commonjs",
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack -w"
+  },
+  "devDependencies": {
+    "@hyperionbt/helios-loader": "^0.1.2",
+    "ts-loader": "^9.4.2",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.0.4",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
+  },
+  "dependencies": {
+    "@hyperionbt/helios": "^0.13.19"
+  }
+}
