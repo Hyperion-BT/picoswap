@@ -4,3 +4,4 @@ external
 node_modules
 dist
 **.d.ts
+.next

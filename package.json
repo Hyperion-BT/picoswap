@@ -4,11 +4,16 @@
   "description": "",
   "type": "commonjs",
   "scripts": {
-    "build": "webpack",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "compile": "webpack",
     "watch": "webpack -w"
   },
   "devDependencies": {
     "@hyperionbt/helios-loader": "^0.1.2",
+    "@types/react": "18.2.22",
     "ts-loader": "^9.4.2",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
@@ -17,6 +22,9 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "@hyperionbt/helios": "^0.13.19"
+    "@hyperionbt/helios": "^0.15.11",
+    "next": "^13.5.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }
